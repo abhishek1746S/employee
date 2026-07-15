@@ -1,0 +1,20 @@
+.no-referrals {
+width: 100%;
+background: white;
+padding: 60px;
+border-radius: 24px;
+text-align: center;
+
+box-shadow:
+0 10px 25px rgba(0,0,0,0.05);
+}
+
+.no-referrals h2 {
+font-size: 2rem;
+margin-bottom: 15px;
+color: #0f172a;
+}
+
+.no-referrals p {
+color: #64748b;
+}

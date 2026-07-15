@@ -1,0 +1,56 @@
+.trusted {
+  padding: 100px 20px;
+  background: white;
+  text-align: center;
+}
+
+.trusted h2 {
+  font-size: 42px;
+  color: #0f172a;
+  margin-bottom: 15px;
+}
+
+.trusted-subtitle {
+  color: #64748b;
+  font-size: 18px;
+  margin-bottom: 60px;
+}
+
+.logo-strip {
+  max-width: 1200px;
+  margin: auto;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 60px;
+
+  flex-wrap: wrap;
+}
+
+.logo-item {
+  opacity: 0.8;
+  transition: all 0.3s ease;
+}
+
+.logo-item:hover {
+  opacity: 1;
+  transform: translateY(-4px);
+}
+
+.company-logo {
+  width: 100px;
+  height: 100px;
+  object-fit: contain;
+}
+
+@media (max-width: 768px) {
+  .logo-strip {
+    gap: 30px;
+  }
+
+  .company-logo {
+    width: 70px;
+    height: 70px;
+  }
+}
