@@ -29,3 +29,8 @@ export const getRankings = async (id) => {
   const response = await api.get(`/referrals/${id}/rankings`);
   return response.data;
 };
+
+export const getDashboard = async () => {
+  const response = await api.get("/referrals/employee/dashboard");
+  return response.data;
+};

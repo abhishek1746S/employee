@@ -15,8 +15,9 @@ class User(Base):
     email = Column(String, unique=True, index=True, nullable=False)
     hashed_password = Column(String, nullable=False)
     role = Column(Enum(RoleEnum), nullable=False)
-    is_verified = Column(Boolean, default=False)  # for employees
-    company_email = Column(String, nullable=True)  # for employees
+    is_verified = Column(Boolean, default=False)
+
+    company_email = Column(String, nullable=True)
     company_name = Column(String, nullable=True)
 
     # profile fields
@@ -26,3 +27,7 @@ class User(Base):
     profile_resume = Column(String, nullable=True)
     linkedin = Column(String, nullable=True)
     github = Column(String, nullable=True)
+
+    phone = Column(String, nullable=True)
+    designation = Column(String, nullable=True)
+    address = Column(String, nullable=True)

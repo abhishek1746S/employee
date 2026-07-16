@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import {
   FaUserFriends,
   FaClipboardList,
@@ -22,48 +22,13 @@ import {
 import { CircularProgressbar } from "react-circular-progressbar";
 import "react-circular-progressbar/dist/styles.css";
 
-const stats = [
-  {
-    title: "Active Referrals",
-    value: 120,
-    icon: (
-      <FaClipboardList
-        size={28}
-        className="text-violet-600"
-      />
-    ),
-  },
-  {
-    title: "Total Applicants",
-    value: 15,
-    icon: (
-      <FaUserFriends
-        size={28}
-        className="text-blue-600"
-      />
-    ),
-  },
-  {
-    title: "Shortlisted",
-    value: 5,
-    icon: (
-      <FaUserCheck
-        size={28}
-        className="text-green-600"
-      />
-    ),
-  },
-  {
-    title: "Referral Issued",
-    value: 8,
-    icon: (
-      <FaPaperPlane
-        size={28}
-        className="text-orange-500"
-      />
-    ),
-  },
-];
+import {
+  getDashboard,
+} from "../../services/referralService.js";
+
+import {
+  getProfile,
+} from "../../services/profileService.js";
 
 const chartData = [
   { month: "Mar 5", value: 5 },
@@ -74,105 +39,205 @@ const chartData = [
   { month: "Jun 9", value: 40 },
 ];
 
-const applicants = [
-  {
-    name: "Ananya Singh",
-    role: "SDE Intern",
-    time: "2h ago",
-    status: "Under Review",
-  },
-  {
-    name: "Rohit Verma",
-    role: "Backend Developer",
-    time: "5h ago",
-    status: "Shortlisted",
-  },
-  {
-    name: "Meera Patel",
-    role: "Frontend Developer",
-    time: "1 day ago",
-    status: "Under Review",
-  },
-];
-
-const referrals = [
-  {
-    job: "SDE Intern",
-    applicants: 12,
-  },
-  {
-    job: "Backend Developer",
-    applicants: 8,
-  },
-  {
-    job: "Frontend Developer",
-    applicants: 6,
-  },
-];
 
 export default function HomeDashboard() {
+  const savedProfile = localStorage.getItem(
+  "employeeProfile"
+);
+  const [dashboard, setDashboard] = useState({
+    total_referrals: 0,
+    active_referrals: 0,
+    total_applicants: 0,
+    shortlisted: 0,
+    referred: 0,
+    under_review: 0,
+    recent_applications: [],
+  });
+
+ const [profile, setProfile] = useState(
+  savedProfile
+    ? JSON.parse(savedProfile)
+    : {
+        name: "",
+        designation: "",
+        company_name: "",
+        profile_pic: "",
+      }
+);
+
+  const [loading, setLoading] = useState(true);
+
+  const loadDashboard = async () => {
+    try {
+      const data = await getDashboard();
+      setDashboard(data);
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  const loadProfile = async () => {
+    try {
+      const data = await getProfile();
+
+      setProfile({
+        name: data.name || "",
+        designation: data.designation || "",
+        company_name: data.company_name || "",
+        profile_pic: data.profile_pic || "",
+      });
+      localStorage.setItem(
+  "employeeProfile",
+  JSON.stringify(data)
+);
+
+    } catch (error) {
+      console.error(error);
+    }
+  };
+
+  useEffect(() => {
+
+    const loadData = async () => {
+
+      setLoading(true);
+
+      await Promise.all([
+        loadDashboard(),
+        loadProfile(),
+      ]);
+
+      setLoading(false);
+
+    };
+
+    loadData();
+
+  }, []);
+
+  const stats = [
+    {
+      title: "Active Referrals",
+      value: dashboard.active_referrals,
+      icon: (
+        <FaClipboardList
+          size={28}
+          className="text-violet-600"
+        />
+      ),
+    },
+        {
+      title: "Total Applicants",
+      value: dashboard.total_applicants,
+      icon: (
+        <FaUserFriends
+          size={28}
+          className="text-blue-600"
+        />
+      ),
+    },
+    {
+      title: "Shortlisted",
+      value: dashboard.shortlisted,
+      icon: (
+        <FaUserCheck
+          size={28}
+          className="text-green-600"
+        />
+      ),
+    },
+    {
+      title: "Referral Issued",
+      value: dashboard.referred,
+      icon: (
+        <FaPaperPlane
+          size={28}
+          className="text-orange-500"
+        />
+      ),
+    },
+  ];
+
+  if (loading) {
+    return (
+      <div className="flex items-center justify-center h-screen">
+        <h1 className="text-2xl font-semibold">
+          Loading Dashboard...
+        </h1>
+      </div>
+    );
+  }
+
   return (
-    <div className="bg-[#F8F9FC] min-h-screen p-4 sm:p-5 lg:p-6">
 
-      <div className="bg-white rounded-2xl shadow-sm px-5 py-5 lg:px-8 lg:py-6 flex flex-col xl:flex-row xl:justify-between xl:items-center gap-6 mb-6">
+    <div className="bg-[#F8F9FC] h-screen overflow-y-auto p-3 sm:p-4 md:p-6 scrollbar-hide">
 
-        <div className="mt-12 lg:mt-0">
+      {/* Header */}
 
-          <h1 className="text-2xl sm:text-3xl font-bold">
+      <div className="bg-white rounded-2xl shadow-sm p-4 md:px-8 md:py-5 flex flex-col lg:flex-row lg:justify-between lg:items-center gap-5 mb-6">
+
+        {/* Left */}
+
+        <div>
+
+          <h1 className="text-2xl md:text-3xl font-bold">
             Dashboard
           </h1>
 
-          <p className="text-gray-500 mt-1 text-sm sm:text-base">
-            Welcome back, Rahul 👋
+          <p className="text-gray-500 mt-1 text-sm md:text-base">
+            Welcome Back 👋
           </p>
 
         </div>
 
-        <div className="flex flex-col md:flex-row md:items-center gap-4 w-full xl:w-auto">
+        {/* Right */}
 
-          <div className="relative flex-1 xl:w-80">
+        <div className="flex flex-col sm:flex-row sm:items-center gap-4 w-full lg:w-auto">
 
-            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
+          {/* Search */}
+
+          <div className="relative w-full sm:w-72">
+
+            <FaSearch className="absolute left-3 top-3 text-gray-400" />
 
             <input
               type="text"
               placeholder="Search..."
-              className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-600"
+              className="w-full pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-violet-600"
             />
 
           </div>
 
-          <div className="flex items-center justify-between md:justify-start gap-5">
+          {/* User */}
 
-            <button className="relative">
+          <div className="flex items-center justify-between sm:justify-start gap-4">
 
-              <FaBell className="text-2xl text-gray-600 hover:text-violet-600 transition" />
+            <FaBell className="text-2xl text-gray-600 cursor-pointer hover:text-violet-600" />
 
-              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
-
-            </button>
-
-            <div className="flex items-center gap-3 cursor-pointer">
+            <div className="flex items-center gap-3">
 
               <img
-                src="https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg"
-                alt=""
-                className="w-11 h-11 rounded-full object-cover"
+                src={
+                  profile.profile_pic ||
+                  "https://i.pravatar.cc/200?img=12"
+                }
+                alt="Profile"
+                className="w-10 h-10 md:w-11 md:h-11 rounded-full object-cover"
               />
 
               <div className="hidden sm:block">
 
                 <h2 className="font-semibold">
-                  Rahul Sharma
+                  {profile.name}
                 </h2>
 
                 <p className="text-sm text-gray-500">
-                  Employee
+                  {profile.designation || "Employee"}
                 </p>
 
               </div>
 
-              <FaChevronDown className="text-gray-500" />
+              <FaChevronDown />
 
             </div>
 
@@ -182,13 +247,16 @@ export default function HomeDashboard() {
 
       </div>
 
-      <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-5">
+      {/* Stats */}
+            {/* Stats Cards */}
+
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-5">
 
         {stats.map((item, index) => (
 
           <div
             key={index}
-            className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 p-6 flex justify-between items-center min-h-[140px]"
+            className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 p-5 md:p-6 flex justify-between items-center"
           >
 
             <div>
@@ -197,76 +265,57 @@ export default function HomeDashboard() {
                 {item.title}
               </h2>
 
-              <h1 className="text-3xl lg:text-4xl font-bold mt-3">
+              <h1 className="text-3xl md:text-4xl font-bold mt-3 text-gray-800">
                 {item.value}
               </h1>
 
               <p className="text-green-500 text-sm mt-2">
-                ↑ 12% this month
+                Live Data
               </p>
 
             </div>
 
-            <div className="w-14 h-14 rounded-2xl bg-violet-50 flex items-center justify-center">
-
-              {item.icon}
-
-            </div>
+            {item.icon}
 
           </div>
 
         ))}
 
       </div>
-            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-6">
 
-        <div className="xl:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
 
-          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
+      {/* Chart + Summary */}
 
-            <h2 className="text-lg sm:text-xl font-bold">
-              Applications Overview
-            </h2>
+      <div className="grid grid-cols-1 xl:grid-cols-3 gap-5 mt-6">
 
-            <button className="px-4 py-2 rounded-lg bg-violet-100 text-violet-700 text-sm font-medium hover:bg-violet-200 transition">
-              Last 6 Months
-            </button>
+        {/* Chart */}
 
-          </div>
+        <div className="xl:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-4 md:p-6">
 
-          <div className="w-full h-[260px] sm:h-[320px] lg:h-[360px]">
+          <h2 className="font-bold text-lg md:text-xl mb-5">
+            Applications Overview
+          </h2>
+
+          <div className="w-full h-[250px] md:h-[320px]">
 
             <ResponsiveContainer width="100%" height="100%">
 
-              <LineChart
-                data={chartData}
-                margin={{
-                  top: 10,
-                  right: 10,
-                  left: -15,
-                  bottom: 0,
-                }}
-              >
+              <LineChart data={chartData}>
 
                 <CartesianGrid
                   stroke="#E5E7EB"
                   strokeDasharray="5 5"
                 />
 
-                <XAxis
-                  dataKey="month"
-                  tick={{ fontSize: 12 }}
-                />
+                <XAxis dataKey="month" />
 
-                <YAxis
-                  tick={{ fontSize: 12 }}
-                />
+                <YAxis />
 
                 <Tooltip
                   contentStyle={{
-                    borderRadius: "12px",
+                    borderRadius: "10px",
                     border: "none",
-                    boxShadow: "0 6px 18px rgba(0,0,0,.12)",
+                    boxShadow: "0 0 10px rgba(0,0,0,.1)",
                   }}
                 />
 
@@ -275,12 +324,8 @@ export default function HomeDashboard() {
                   dataKey="value"
                   stroke="#6D28D9"
                   strokeWidth={4}
-                  dot={{
-                    r: 5,
-                  }}
-                  activeDot={{
-                    r: 8,
-                  }}
+                  dot={{ r: 5 }}
+                  activeDot={{ r: 8 }}
                 />
 
               </LineChart>
@@ -291,75 +336,128 @@ export default function HomeDashboard() {
 
         </div>
 
-        <div className="space-y-6">
 
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
+        {/* Right Side */}
 
-            <h2 className="text-lg font-bold mb-5">
-              Top Referrals
+        <div className="space-y-5"> 
+                    {/* Dashboard Summary */}
+
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 md:p-6">
+
+            <h2 className="font-bold text-lg mb-4">
+              Dashboard Summary
             </h2>
 
             <div className="space-y-4">
 
-              {referrals.map((item, index) => (
+              <div className="flex justify-between">
 
-                <div
-                  key={index}
-                  className="flex items-center justify-between pb-4 border-b last:border-0 last:pb-0"
-                >
+                <span>Total Referrals</span>
 
-                  <div>
+                <span className="font-bold text-violet-600">
+                  {dashboard.total_referrals}
+                </span>
 
-                    <h3 className="font-semibold text-sm sm:text-base">
-                      {item.job}
-                    </h3>
+              </div>
 
-                    <p className="text-xs sm:text-sm text-gray-400">
-                      Referral Post
-                    </p>
+              <div className="flex justify-between">
 
-                  </div>
+                <span>Active Referrals</span>
 
-                  <div className="w-11 h-11 rounded-full bg-violet-100 flex items-center justify-center">
+                <span className="font-bold text-green-600">
+                  {dashboard.active_referrals}
+                </span>
 
-                    <span className="font-bold text-violet-700">
-                      {item.applicants}
-                    </span>
+              </div>
 
-                  </div>
+              <div className="flex justify-between">
 
-                </div>
+                <span>Total Applicants</span>
 
-              ))}
+                <span className="font-bold text-blue-600">
+                  {dashboard.total_applicants}
+                </span>
+
+              </div>
+
+              <div className="flex justify-between">
+
+                <span>Shortlisted</span>
+
+                <span className="font-bold text-orange-600">
+                  {dashboard.shortlisted}
+                </span>
+
+              </div>
+
+              <div className="flex justify-between">
+
+                <span>Referral Issued</span>
+
+                <span className="font-bold text-purple-600">
+                  {dashboard.referred}
+                </span>
+
+              </div>
+
+              <div className="flex justify-between">
+
+                <span>Under Review</span>
+
+                <span className="font-bold text-yellow-600">
+                  {dashboard.under_review}
+                </span>
+
+              </div>
 
             </div>
 
           </div>
 
-          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
 
-            <h2 className="text-lg font-bold mb-5">
+          {/* Referral Conversion */}
+
+          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 md:p-6">
+
+            <h2 className="font-bold text-lg mb-4">
               Referral Conversion
             </h2>
 
-            <div className="w-32 sm:w-40 mx-auto">
+            <div className="w-36 mx-auto">
 
               <CircularProgressbar
-                value={25}
-                text="25%"
+                value={
+                  dashboard.total_applicants === 0
+                    ? 0
+                    : Math.round(
+                        (dashboard.shortlisted /
+                          dashboard.total_applicants) *
+                          100
+                      )
+                }
+                text={`${
+                  dashboard.total_applicants === 0
+                    ? 0
+                    : Math.round(
+                        (dashboard.shortlisted /
+                          dashboard.total_applicants) *
+                          100
+                      )
+                }%`}
                 strokeWidth={10}
               />
 
             </div>
 
-            <div className="text-center mt-6">
+            <div className="text-center mt-5">
 
-              <h3 className="font-bold text-lg">
-                Good Progress
-              </h3>
+              <h2 className="font-bold text-lg">
+                Live Conversion
+              </h2>
 
               <p className="text-gray-500 text-sm mt-2">
-                8 referrals completed
+                {dashboard.shortlisted} shortlisted from{" "}
+                {dashboard.total_applicants} applicants
               </p>
 
             </div>
@@ -369,41 +467,32 @@ export default function HomeDashboard() {
         </div>
 
       </div>
-            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 mt-6 p-5 sm:p-6">
 
-        <div className="flex items-center justify-between mb-6">
 
-          <h2 className="text-lg sm:text-xl font-bold">
-            Recent Applicants
-          </h2>
+      {/* Recent Applicants */}
+            <div className="bg-white rounded-2xl border border-gray-100 shadow-sm mt-6 p-4 md:p-6">
 
-          <button className="text-violet-600 font-medium hover:text-violet-700">
-            View All
-          </button>
+        <h2 className="text-lg md:text-xl font-bold mb-5">
+          Recent Applicants
+        </h2>
 
-        </div>
+        <div className="overflow-x-auto">
 
-        <div className="hidden lg:block overflow-x-auto">
-
-          <table className="w-full">
+          <table className="min-w-[650px] w-full">
 
             <thead>
 
-              <tr className="bg-gray-50 text-left">
+              <tr className="bg-gray-50 text-left h-14">
 
-                <th className="px-5 py-4 rounded-l-xl">
-                  Candidate
+                <th className="py-4 px-3">
+                  Student ID
                 </th>
 
-                <th className="px-5 py-4">
-                  Role
+                <th>
+                  Application ID
                 </th>
 
-                <th className="px-5 py-4">
-                  Applied
-                </th>
-
-                <th className="px-5 py-4 rounded-r-xl">
+                <th>
                   Status
                 </th>
 
@@ -413,52 +502,62 @@ export default function HomeDashboard() {
 
             <tbody>
 
-              {applicants.map((item, index) => (
+              {dashboard.recent_applications.length > 0 ? (
 
-                <tr
-                  key={index}
-                  className="border-b hover:bg-gray-50 transition"
-                >
+                dashboard.recent_applications.map((item, index) => (
 
-                  <td className="px-5 py-5">
+                  <tr
+                    key={index}
+                    className="border-b h-16 hover:bg-gray-50 transition-all duration-300"
+                  >
 
-                    <div className="flex items-center gap-3">
+                    <td className="px-3 font-medium">
+                      #{item.student_id}
+                    </td>
 
-                      <div className="w-11 h-11 rounded-full bg-violet-100 flex items-center justify-center font-bold text-violet-700">
+                    <td>
+                      #{item.application_id}
+                    </td>
 
-                        {item.name.charAt(0)}
+                    <td>
 
-                      </div>
+                      <span
+                        className={`px-4 py-2 rounded-full text-xs md:text-sm font-semibold
+                        ${
+                          item.status === "shortlisted"
+                            ? "bg-green-100 text-green-700"
+                            : item.status === "under_review"
+                            ? "bg-yellow-100 text-yellow-700"
+                            : item.status === "referred"
+                            ? "bg-blue-100 text-blue-700"
+                            : "bg-gray-100 text-gray-700"
+                        }`}
+                      >
 
-                      <span className="font-medium">
-                        {item.name}
+                        {item.status}
+
                       </span>
 
-                    </div>
+                    </td>
 
-                  </td>
+                  </tr>
 
-                  <td className="px-5 py-5">
-                    {item.role}
-                  </td>
+                ))
 
-                  <td className="px-5 py-5">
-                    {item.time}
-                  </td>
+              ) : (
 
-                  <td className="px-5 py-5">
+                <tr>
 
-                    <span className="bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium">
-
-                      {item.status}
-
-                    </span>
-
+                  <td
+                    colSpan={3}
+                    className="text-center py-10 text-gray-500"
+                  >
+                    No recent applications found.
                   </td>
 
                 </tr>
 
-              ))}
+              )}
 
             </tbody>
 
@@ -466,61 +565,10 @@ export default function HomeDashboard() {
 
         </div>
 
-        <div className="grid gap-4 lg:hidden">
-
-          {applicants.map((item, index) => (
-
-            <div
-              key={index}
-              className="border rounded-xl p-4 shadow-sm"
-            >
-
-              <div className="flex items-center gap-3">
-
-                <div className="w-12 h-12 rounded-full bg-violet-100 flex items-center justify-center font-bold text-violet-700">
-
-                  {item.name.charAt(0)}
-
-                </div>
-
-                <div>
-
-                  <h3 className="font-semibold">
-                    {item.name}
-                  </h3>
-
-                  <p className="text-sm text-gray-500">
-                    {item.role}
-                  </p>
-
-                </div>
-
-              </div>
-
-              <div className="flex justify-between items-center mt-4">
-
-                <span className="text-gray-500 text-sm">
-
-                  {item.time}
-
-                </span>
-
-                <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
-
-                  {item.status}
-
-                </span>
-
-              </div>
-
-            </div>
-
-          ))}
-
-        </div>
-
       </div>
 
     </div>
+
   );
+
 }

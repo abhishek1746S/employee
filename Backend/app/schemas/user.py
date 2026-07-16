@@ -38,9 +38,18 @@ class TokenResponse(BaseModel):
 # update own profile
 class ProfileUpdate(BaseModel):
     name: Optional[str] = None
+
+    email: Optional[EmailStr] = None
+
+    company_name: Optional[str] = None
+    company_email: Optional[str] = None
+
     bio: Optional[str] = None
+
     skills: Optional[str] = None
+
     linkedin: Optional[str] = None
+
     github: Optional[str] = None
 
 # what student sees of their own profile
