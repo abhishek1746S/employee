@@ -38,135 +38,336 @@ const candidates = [
 
 const ShortList = () => {
   return (
-    <div className="bg-[#F8F9FC] min-h-screen p-6">
+    <div className="min-h-screen bg-[#F8F9FC] p-4 sm:p-5 lg:p-6">
 
-      {/* Header */}
+      <div className="bg-white rounded-2xl shadow-sm p-5 sm:p-6 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-5 mb-6">
 
-      <div className="flex justify-between items-center mb-6">
+        <div className="mt-12 lg:mt-0">
 
-        <div>
-          <h1 className="text-3xl font-bold">
+          <h1 className="text-2xl sm:text-3xl font-bold">
             Shortlisted Candidates
           </h1>
 
-          <p className="text-gray-500">
+          <p className="text-gray-500 text-sm sm:text-base mt-1">
             Candidates selected for interview.
           </p>
+
         </div>
 
       </div>
 
-      {/* Summary Cards */}
+      <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-5 mb-6">
 
-      <div className="grid lg:grid-cols-3 md:grid-cols-2 grid-cols-1 gap-5 mb-8">
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 p-6 flex justify-between items-center">
 
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <p className="text-gray-500">Total Shortlisted</p>
-          <h2 className="text-4xl font-bold mt-2">18</h2>
+          <div>
+
+            <p className="text-gray-500 text-sm">
+              Total Shortlisted
+            </p>
+
+            <h2 className="text-3xl lg:text-4xl font-bold mt-3">
+              18
+            </h2>
+
+            <p className="text-green-500 text-sm mt-2">
+              +4 this week
+            </p>
+
+          </div>
+
+          <div className="w-14 h-14 rounded-2xl bg-violet-100 flex items-center justify-center">
+
+            <FaUserGraduate
+              className="text-violet-600"
+              size={24}
+            />
+
+          </div>
+
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <p className="text-gray-500">Interview Pending</p>
-          <h2 className="text-4xl font-bold text-orange-500 mt-2">10</h2>
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 p-6 flex justify-between items-center">
+
+          <div>
+
+            <p className="text-gray-500 text-sm">
+              Interview Pending
+            </p>
+
+            <h2 className="text-3xl lg:text-4xl font-bold text-orange-500 mt-3">
+              10
+            </h2>
+
+            <p className="text-orange-500 text-sm mt-2">
+              Waiting Schedule
+            </p>
+
+          </div>
+
+          <div className="w-14 h-14 rounded-2xl bg-orange-100 flex items-center justify-center">
+
+            <FaCalendarAlt
+              className="text-orange-500"
+              size={24}
+            />
+
+          </div>
+
         </div>
 
-        <div className="bg-white rounded-xl shadow-sm p-6">
-          <p className="text-gray-500">Interview Completed</p>
-          <h2 className="text-4xl font-bold text-green-600 mt-2">8</h2>
+        <div className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 p-6 flex justify-between items-center">
+
+          <div>
+
+            <p className="text-gray-500 text-sm">
+              Interview Completed
+            </p>
+
+            <h2 className="text-3xl lg:text-4xl font-bold text-green-600 mt-3">
+              8
+            </h2>
+
+            <p className="text-green-500 text-sm mt-2">
+              Successfully Finished
+            </p>
+
+          </div>
+
+          <div className="w-14 h-14 rounded-2xl bg-green-100 flex items-center justify-center">
+
+            <FaEye
+              className="text-green-600"
+              size={24}
+            />
+
+          </div>
+
         </div>
 
       </div>
 
-      {/* Table */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm overflow-hidden">
+        <div className="hidden lg:block overflow-x-auto">
 
-      <div className="bg-white rounded-xl shadow-sm overflow-hidden">
+  <table className="w-full">
 
-        <table className="w-full">
+    <thead className="bg-gray-50">
 
-          <thead className="bg-gray-100">
+      <tr>
 
-            <tr>
+        <th className="text-left px-6 py-4 font-semibold text-gray-600">
+          Candidate
+        </th>
 
-              <th className="text-left p-4">Candidate</th>
-              <th className="text-left p-4">Role</th>
-              <th className="text-left p-4">Resume Score</th>
-              <th className="text-left p-4">Status</th>
-              <th className="text-left p-4">Actions</th>
+        <th className="text-left px-6 py-4 font-semibold text-gray-600">
+          Role
+        </th>
 
-            </tr>
+        <th className="text-left px-6 py-4 font-semibold text-gray-600">
+          Resume Score
+        </th>
 
-          </thead>
+        <th className="text-left px-6 py-4 font-semibold text-gray-600">
+          Status
+        </th>
 
-          <tbody>
+        <th className="text-left px-6 py-4 font-semibold text-gray-600">
+          Actions
+        </th>
 
-            {candidates.map((candidate) => (
+      </tr>
 
-              <tr
-                key={candidate.id}
-                className="border-b hover:bg-gray-50"
-              >
+    </thead>
 
-                <td className="p-4 flex items-center gap-3">
+    <tbody>
 
-                  <div className="w-10 h-10 rounded-full bg-violet-100 flex items-center justify-center">
+      {candidates.map((candidate) => (
 
-                    <FaUserGraduate className="text-violet-600" />
+        <tr
+          key={candidate.id}
+          className="border-b hover:bg-violet-50 transition-all duration-300"
+        >
 
-                  </div>
+          <td className="px-6 py-5">
 
+            <div className="flex items-center gap-4">
+
+              <div className="w-11 h-11 rounded-full bg-violet-100 flex items-center justify-center">
+
+                <FaUserGraduate className="text-violet-600" />
+
+              </div>
+
+              <div>
+
+                <h2 className="font-semibold text-gray-800">
                   {candidate.name}
+                </h2>
 
-                </td>
+                <p className="text-sm text-gray-500">
+                  Candidate
+                </p>
 
-                <td className="p-4">
-                  {candidate.role}
-                </td>
+              </div>
 
-                <td className="p-4 font-semibold text-green-600">
-                  {candidate.score}%
-                </td>
+            </div>
 
-                <td className="p-4">
+          </td>
 
-                  <span
-                    className={`px-3 py-1 rounded-full text-sm ${
-                      candidate.status === "Ready"
-                        ? "bg-green-100 text-green-700"
-                        : "bg-blue-100 text-blue-700"
-                    }`}
-                  >
-                    {candidate.status}
-                  </span>
+          <td className="px-6 py-5">
 
-                </td>
+            <span className="font-medium">
+              {candidate.role}
+            </span>
 
-                <td className="p-4">
+          </td>
 
-                  <div className="flex gap-4">
+          <td className="px-6 py-5">
 
-                    <button className="text-violet-600 hover:text-violet-800">
-                      <FaEye size={18} />
-                    </button>
+            <span className="text-green-600 font-bold text-lg">
+              {candidate.score}%
+            </span>
 
-                    <button className="text-green-600 hover:text-green-800">
-                      <FaCalendarAlt size={18} />
-                    </button>
+          </td>
 
-                  </div>
+          <td className="px-6 py-5">
 
-                </td>
+            <span
+              className={`px-4 py-2 rounded-full text-sm font-semibold ${
+                candidate.status === "Ready"
+                  ? "bg-green-100 text-green-700"
+                  : "bg-blue-100 text-blue-700"
+              }`}
+            >
+              {candidate.status}
+            </span>
 
-              </tr>
+          </td>
 
-            ))}
+          <td className="px-6 py-5">
 
-          </tbody>
+            <div className="flex items-center gap-5">
 
-        </table>
+              <button className="w-10 h-10 rounded-xl bg-violet-100 hover:bg-violet-200 flex items-center justify-center transition">
+
+                <FaEye className="text-violet-600" />
+
+              </button>
+
+              <button className="w-10 h-10 rounded-xl bg-green-100 hover:bg-green-200 flex items-center justify-center transition">
+
+                <FaCalendarAlt className="text-green-600" />
+
+              </button>
+
+            </div>
+
+          </td>
+
+        </tr>
+
+      ))}
+
+    </tbody>
+
+  </table>
+
+</div>
+<div className="lg:hidden p-4 space-y-4">
+
+  {candidates.map((candidate) => (
+
+    <div
+      key={candidate.id}
+      className="bg-white border border-gray-100 rounded-2xl shadow-sm p-5 hover:shadow-lg transition-all duration-300"
+    >
+
+      <div className="flex items-center gap-3">
+
+        <div className="w-12 h-12 rounded-full bg-violet-100 flex items-center justify-center">
+
+          <FaUserGraduate className="text-violet-600 text-lg" />
+
+        </div>
+
+        <div className="flex-1">
+
+          <h2 className="font-semibold text-gray-800">
+            {candidate.name}
+          </h2>
+
+          <p className="text-sm text-gray-500">
+            {candidate.role}
+          </p>
+
+        </div>
+
+      </div>
+
+      <div className="mt-5 space-y-3">
+
+        <div className="flex justify-between items-center">
+
+          <span className="text-gray-500 text-sm">
+            Resume Score
+          </span>
+
+          <span className="font-bold text-green-600">
+            {candidate.score}%
+          </span>
+
+        </div>
+
+        <div className="flex justify-between items-center">
+
+          <span className="text-gray-500 text-sm">
+            Status
+          </span>
+
+          <span
+            className={`px-3 py-1 rounded-full text-sm font-semibold ${
+              candidate.status === "Ready"
+                ? "bg-green-100 text-green-700"
+                : "bg-blue-100 text-blue-700"
+            }`}
+          >
+            {candidate.status}
+          </span>
+
+        </div>
+
+      </div>
+
+      <div className="flex gap-3 mt-5">
+
+        <button className="flex-1 flex items-center justify-center gap-2 bg-violet-600 text-white py-3 rounded-xl hover:bg-violet-700 transition">
+
+          <FaEye />
+
+          View
+
+        </button>
+
+        <button className="flex-1 flex items-center justify-center gap-2 bg-green-600 text-white py-3 rounded-xl hover:bg-green-700 transition">
+
+          <FaCalendarAlt />
+
+          Schedule
+
+        </button>
 
       </div>
 
     </div>
+
+  ))}
+
+</div>
+
+</div>
+    </div>
+
   );
 };
 

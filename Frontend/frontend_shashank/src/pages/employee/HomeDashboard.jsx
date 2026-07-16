@@ -26,22 +26,42 @@ const stats = [
   {
     title: "Active Referrals",
     value: 120,
-    icon: <FaClipboardList size={28} className="text-violet-600" />,
+    icon: (
+      <FaClipboardList
+        size={28}
+        className="text-violet-600"
+      />
+    ),
   },
   {
     title: "Total Applicants",
     value: 15,
-    icon: <FaUserFriends size={28} className="text-blue-600" />,
+    icon: (
+      <FaUserFriends
+        size={28}
+        className="text-blue-600"
+      />
+    ),
   },
   {
     title: "Shortlisted",
     value: 5,
-    icon: <FaUserCheck size={28} className="text-green-600" />,
+    icon: (
+      <FaUserCheck
+        size={28}
+        className="text-green-600"
+      />
+    ),
   },
   {
     title: "Referral Issued",
     value: 8,
-    icon: <FaPaperPlane size={28} className="text-orange-500" />,
+    icon: (
+      <FaPaperPlane
+        size={28}
+        className="text-orange-500"
+      />
+    ),
   },
 ];
 
@@ -92,76 +112,83 @@ const referrals = [
 
 export default function HomeDashboard() {
   return (
-    <div className="bg-[#F8F9FC] min-h-screen p-6">
+    <div className="bg-[#F8F9FC] min-h-screen p-4 sm:p-5 lg:p-6">
 
-      {/* Header */}
+      <div className="bg-white rounded-2xl shadow-sm px-5 py-5 lg:px-8 lg:py-6 flex flex-col xl:flex-row xl:justify-between xl:items-center gap-6 mb-6">
 
-      <div className="bg-white rounded-xl shadow-sm px-8 py-4 flex justify-between items-center mb-6">
+        <div className="mt-12 lg:mt-0">
 
-  <div>
+          <h1 className="text-2xl sm:text-3xl font-bold">
+            Dashboard
+          </h1>
 
-    <h1 className="text-3xl font-bold">
-      Dashboard
-    </h1>
+          <p className="text-gray-500 mt-1 text-sm sm:text-base">
+            Welcome back, Rahul 👋
+          </p>
 
-    <p className="text-gray-500 mt-1">
-      Welcome back, Rahul 👋
-    </p>
+        </div>
 
-  </div>
+        <div className="flex flex-col md:flex-row md:items-center gap-4 w-full xl:w-auto">
 
-  <div className="flex items-center gap-6">
+          <div className="relative flex-1 xl:w-80">
 
-    <div className="relative">
+            <FaSearch className="absolute left-3 top-1/2 -translate-y-1/2 text-gray-400" />
 
-      <FaSearch className="absolute left-3 top-3 text-gray-400" />
+            <input
+              type="text"
+              placeholder="Search..."
+              className="w-full pl-10 pr-4 py-3 border border-gray-200 rounded-xl focus:outline-none focus:ring-2 focus:ring-violet-600"
+            />
 
-      <input
-        type="text"
-        placeholder="Search..."
-        className="pl-10 pr-4 py-2 border rounded-lg focus:outline-none focus:border-violet-600"
-      />
+          </div>
 
-    </div>
+          <div className="flex items-center justify-between md:justify-start gap-5">
 
-    <FaBell className="text-2xl text-gray-600 cursor-pointer hover:text-violet-600"/>
+            <button className="relative">
 
-    <div className="flex items-center gap-3">
+              <FaBell className="text-2xl text-gray-600 hover:text-violet-600 transition" />
 
-      <img
-        src="https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg?cs=srgb&dl=pexels-italo-melo-881954-2379005.jpg&fm=jpg"
-        className="w-11 h-11 rounded-full"
-      />
+              <span className="absolute -top-1 -right-1 w-2.5 h-2.5 bg-red-500 rounded-full"></span>
 
-      <div>
+            </button>
 
-        <h2 className="font-semibold">
-          Rahul Sharma
-        </h2>
+            <div className="flex items-center gap-3 cursor-pointer">
 
-        <p className="text-sm text-gray-500">
-          Employee
-        </p>
+              <img
+                src="https://images.pexels.com/photos/2379005/pexels-photo-2379005.jpeg"
+                alt=""
+                className="w-11 h-11 rounded-full object-cover"
+              />
+
+              <div className="hidden sm:block">
+
+                <h2 className="font-semibold">
+                  Rahul Sharma
+                </h2>
+
+                <p className="text-sm text-gray-500">
+                  Employee
+                </p>
+
+              </div>
+
+              <FaChevronDown className="text-gray-500" />
+
+            </div>
+
+          </div>
+
+        </div>
 
       </div>
 
-      <FaChevronDown/>
-
-    </div>
-
-  </div>
-
-</div>
-
-      {/* Cards */}
-
-      <div className="grid lg:grid-cols-4 md:grid-cols-2 grid-cols-1 gap-5">
+      <div className="grid grid-cols-1 sm:grid-cols-2 2xl:grid-cols-4 gap-5">
 
         {stats.map((item, index) => (
 
           <div
             key={index}
-            className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-xl hover:-translate-y-1 transition-all duration-300 p-6 flex justify-between items-center cursor-pointer"
+            className="bg-white rounded-2xl border border-gray-100 shadow-sm hover:shadow-lg transition-all duration-300 p-6 flex justify-between items-center min-h-[140px]"
           >
 
             <div>
@@ -170,207 +197,327 @@ export default function HomeDashboard() {
                 {item.title}
               </h2>
 
-              <h1 className="text-4xl font-bold mt-3 text-gray-800">
+              <h1 className="text-3xl lg:text-4xl font-bold mt-3">
                 {item.value}
               </h1>
 
               <p className="text-green-500 text-sm mt-2">
-↑ 12% this month
-</p>
+                ↑ 12% this month
+              </p>
 
             </div>
 
-            {item.icon}
+            <div className="w-14 h-14 rounded-2xl bg-violet-50 flex items-center justify-center">
+
+              {item.icon}
+
+            </div>
 
           </div>
 
         ))}
 
       </div>
+            <div className="grid grid-cols-1 xl:grid-cols-3 gap-6 mt-6">
 
-      {/* Chart + Right */}
+        <div className="xl:col-span-2 bg-white rounded-2xl shadow-sm border border-gray-100 p-4 sm:p-6">
 
-      <div className="grid lg:grid-cols-3 grid-cols-1 gap-5 mt-6">
+          <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 mb-5">
 
-        {/* Chart */}
-
-        <div className="lg:col-span-2 bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-
-          <h2 className="font-bold text-xl mb-5">
-            Applications Overview
-          </h2>
-
-          <ResponsiveContainer width="100%" height={320}>
-
-            <LineChart data={chartData}>
-
-              <CartesianGrid
-stroke="#E5E7EB"
-strokeDasharray="5 5"
-/>
-
-              <XAxis dataKey="month" />
-
-              <YAxis />
-
-              <Tooltip
-contentStyle={{
-borderRadius:"10px",
-border:"none",
-boxShadow:"0 0 10px rgba(0,0,0,.1)"
-}}
-/>
-
-              <Line
-type="monotone"
-dataKey="value"
-stroke="#6D28D9"
-strokeWidth={4}
-dot={{ r: 5 }}
-activeDot={{ r: 8 }}
-/>
-
-            </LineChart>
-
-          </ResponsiveContainer>
-
-        </div>
-
-        {/* Right Side */}
-
-        <div className="space-y-5">
-
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
-
-            <h2 className="font-bold text-lg mb-4">
-              Top Referrals
+            <h2 className="text-lg sm:text-xl font-bold">
+              Applications Overview
             </h2>
 
-            {referrals.map((item, index) => (
-
-              <div
-                key={index}
-                className="flex justify-between py-2 border-b"
-              >
-
-                <div>
-
-<h2 className="font-semibold">
-{item.job}
-</h2>
-
-<p className="text-gray-400 text-sm">
-Referral Post
-</p>
-
-</div>
-
-                <span className="text-violet-600 font-bold">
-{item.applicants}
-</span>
-
-              </div>
-
-            ))}
+            <button className="px-4 py-2 rounded-lg bg-violet-100 text-violet-700 text-sm font-medium hover:bg-violet-200 transition">
+              Last 6 Months
+            </button>
 
           </div>
 
-          <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-6">
+          <div className="w-full h-[260px] sm:h-[320px] lg:h-[360px]">
 
-            <h2 className="font-bold text-lg mb-4">
-              Referral Conversion
+            <ResponsiveContainer width="100%" height="100%">
+
+              <LineChart
+                data={chartData}
+                margin={{
+                  top: 10,
+                  right: 10,
+                  left: -15,
+                  bottom: 0,
+                }}
+              >
+
+                <CartesianGrid
+                  stroke="#E5E7EB"
+                  strokeDasharray="5 5"
+                />
+
+                <XAxis
+                  dataKey="month"
+                  tick={{ fontSize: 12 }}
+                />
+
+                <YAxis
+                  tick={{ fontSize: 12 }}
+                />
+
+                <Tooltip
+                  contentStyle={{
+                    borderRadius: "12px",
+                    border: "none",
+                    boxShadow: "0 6px 18px rgba(0,0,0,.12)",
+                  }}
+                />
+
+                <Line
+                  type="monotone"
+                  dataKey="value"
+                  stroke="#6D28D9"
+                  strokeWidth={4}
+                  dot={{
+                    r: 5,
+                  }}
+                  activeDot={{
+                    r: 8,
+                  }}
+                />
+
+              </LineChart>
+
+            </ResponsiveContainer>
+
+          </div>
+
+        </div>
+
+        <div className="space-y-6">
+
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
+
+            <h2 className="text-lg font-bold mb-5">
+              Top Referrals
             </h2>
 
-            <div className="w-40 mx-auto">
+            <div className="space-y-4">
 
-              <CircularProgressbar
-value={25}
-text="25%"
-strokeWidth={10}
-/>
+              {referrals.map((item, index) => (
+
+                <div
+                  key={index}
+                  className="flex items-center justify-between pb-4 border-b last:border-0 last:pb-0"
+                >
+
+                  <div>
+
+                    <h3 className="font-semibold text-sm sm:text-base">
+                      {item.job}
+                    </h3>
+
+                    <p className="text-xs sm:text-sm text-gray-400">
+                      Referral Post
+                    </p>
+
+                  </div>
+
+                  <div className="w-11 h-11 rounded-full bg-violet-100 flex items-center justify-center">
+
+                    <span className="font-bold text-violet-700">
+                      {item.applicants}
+                    </span>
+
+                  </div>
+
+                </div>
+
+              ))}
 
             </div>
 
-            <div className="text-center mt-5">
+          </div>
 
-<h2 className="font-bold text-lg">
-Good Progress
-</h2>
+          <div className="bg-white rounded-2xl shadow-sm border border-gray-100 p-5 sm:p-6">
 
-<p className="text-gray-500 text-sm">
-8 referrals completed
-</p>
+            <h2 className="text-lg font-bold mb-5">
+              Referral Conversion
+            </h2>
 
-</div>
+            <div className="w-32 sm:w-40 mx-auto">
+
+              <CircularProgressbar
+                value={25}
+                text="25%"
+                strokeWidth={10}
+              />
+
+            </div>
+
+            <div className="text-center mt-6">
+
+              <h3 className="font-bold text-lg">
+                Good Progress
+              </h3>
+
+              <p className="text-gray-500 text-sm mt-2">
+                8 referrals completed
+              </p>
+
+            </div>
 
           </div>
 
         </div>
 
       </div>
+            <div className="bg-white rounded-2xl shadow-sm border border-gray-100 mt-6 p-5 sm:p-6">
 
-      {/* Applicants */}
+        <div className="flex items-center justify-between mb-6">
 
-      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm mt-6 p-6">
+          <h2 className="text-lg sm:text-xl font-bold">
+            Recent Applicants
+          </h2>
 
-        <h2 className="text-xl font-bold mb-5">
+          <button className="text-violet-600 font-medium hover:text-violet-700">
+            View All
+          </button>
 
-          Recent Applicants
+        </div>
 
-        </h2>
+        <div className="hidden lg:block overflow-x-auto">
 
-        <table className="w-full">
+          <table className="w-full">
 
-          <thead>
+            <thead>
 
-            <tr className="bg-gray-50 text-left h-14">
+              <tr className="bg-gray-50 text-left">
 
-              <th className="py-4 px-3">
-Name
-</th>
+                <th className="px-5 py-4 rounded-l-xl">
+                  Candidate
+                </th>
 
-              <th>Role</th>
+                <th className="px-5 py-4">
+                  Role
+                </th>
 
-              <th>Time</th>
+                <th className="px-5 py-4">
+                  Applied
+                </th>
 
-              <th>Status</th>
-
-            </tr>
-
-          </thead>
-
-          <tbody>
-
-            {applicants.map((item, index) => (
-
-              <tr
-key={index}
-className="border-b h-16 hover:bg-gray-50 transition-all duration-300"
->
-
-                <td>{item.name}</td>
-
-                <td>{item.role}</td>
-
-                <td>{item.time}</td>
-
-                <td>
-
-                  <span className="bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-semibold">
-
-                    {item.status}
-
-                  </span>
-
-                </td>
+                <th className="px-5 py-4 rounded-r-xl">
+                  Status
+                </th>
 
               </tr>
 
-            ))}
+            </thead>
 
-          </tbody>
+            <tbody>
 
-        </table>
+              {applicants.map((item, index) => (
+
+                <tr
+                  key={index}
+                  className="border-b hover:bg-gray-50 transition"
+                >
+
+                  <td className="px-5 py-5">
+
+                    <div className="flex items-center gap-3">
+
+                      <div className="w-11 h-11 rounded-full bg-violet-100 flex items-center justify-center font-bold text-violet-700">
+
+                        {item.name.charAt(0)}
+
+                      </div>
+
+                      <span className="font-medium">
+                        {item.name}
+                      </span>
+
+                    </div>
+
+                  </td>
+
+                  <td className="px-5 py-5">
+                    {item.role}
+                  </td>
+
+                  <td className="px-5 py-5">
+                    {item.time}
+                  </td>
+
+                  <td className="px-5 py-5">
+
+                    <span className="bg-green-100 text-green-700 px-4 py-2 rounded-full text-sm font-medium">
+
+                      {item.status}
+
+                    </span>
+
+                  </td>
+
+                </tr>
+
+              ))}
+
+            </tbody>
+
+          </table>
+
+        </div>
+
+        <div className="grid gap-4 lg:hidden">
+
+          {applicants.map((item, index) => (
+
+            <div
+              key={index}
+              className="border rounded-xl p-4 shadow-sm"
+            >
+
+              <div className="flex items-center gap-3">
+
+                <div className="w-12 h-12 rounded-full bg-violet-100 flex items-center justify-center font-bold text-violet-700">
+
+                  {item.name.charAt(0)}
+
+                </div>
+
+                <div>
+
+                  <h3 className="font-semibold">
+                    {item.name}
+                  </h3>
+
+                  <p className="text-sm text-gray-500">
+                    {item.role}
+                  </p>
+
+                </div>
+
+              </div>
+
+              <div className="flex justify-between items-center mt-4">
+
+                <span className="text-gray-500 text-sm">
+
+                  {item.time}
+
+                </span>
+
+                <span className="bg-green-100 text-green-700 px-3 py-1 rounded-full text-sm font-medium">
+
+                  {item.status}
+
+                </span>
+
+              </div>
+
+            </div>
+
+          ))}
+
+        </div>
 
       </div>
 

@@ -1,4 +1,4 @@
-import React from "react";
+import React, { useState } from "react";
 import {
   FaCamera,
   FaEnvelope,
@@ -9,44 +9,58 @@ import {
 } from "react-icons/fa";
 
 const Profile = () => {
+
+  const [isEditing, setIsEditing] = useState(false);
+
+  const [profile, setProfile] = useState({
+    name: "Rahul Sharma",
+    employeeId: "EMP-1025",
+    email: "rahul@gmail.com",
+    phone: "+91 9876543210",
+    company: "Google India",
+    designation: "Software Engineer",
+    address: "Bangalore, Karnataka, India",
+    about:
+      "Passionate Software Engineer with experience in Web Development, React, FastAPI and AI-based applications. Interested in building scalable products and helping students through ReferralX.",
+    github: "https://github.com/username",
+    linkedin: "https://linkedin.com/in/username",
+  });
+
   return (
-    <div className="bg-[#F8F9FC] min-h-screen p-6">
 
-      {/* Header */}
+    <div className="min-h-screen bg-[#F8F9FC] p-4 sm:p-5 lg:p-6">
 
-      <div className="mb-8">
+      <div className="bg-white rounded-2xl shadow-sm p-5 sm:p-6 mb-6">
 
-        <h1 className="text-3xl font-bold">
-          My Profile
-        </h1>
+        <div className="mt-12 lg:mt-0">
 
-        <p className="text-gray-500">
-          View and manage your profile information.
-        </p>
+          <h1 className="text-2xl sm:text-3xl font-bold">
+            My Profile
+          </h1>
+
+          <p className="text-gray-500 text-sm sm:text-base mt-1">
+            View and manage your profile information.
+          </p>
+
+        </div>
 
       </div>
 
-      {/* Profile Card */}
+      <div className="bg-white rounded-2xl border border-gray-100 shadow-sm p-5 sm:p-6 lg:p-8">
 
-      <div className="bg-white rounded-2xl shadow-sm p-8">
+        <div className="flex flex-col xl:flex-row gap-8">
 
-        <div className="flex flex-col lg:flex-row gap-8">
-
-          {/* Left */}
-
-          <div className="flex flex-col items-center">
+          <div className="xl:w-80 flex flex-col items-center">
 
             <div className="relative">
 
               <img
                 src="https://i.pravatar.cc/200?img=12"
                 alt="profile"
-                className="w-40 h-40 rounded-full object-cover border-4 border-violet-500"
+                className="w-36 h-36 sm:w-44 sm:h-44 rounded-full object-cover border-4 border-violet-500"
               />
 
-              <button
-                className="absolute bottom-2 right-2 bg-violet-600 text-white p-3 rounded-full hover:bg-violet-700"
-              >
+              <button className="absolute bottom-2 right-2 bg-violet-600 hover:bg-violet-700 transition text-white p-3 rounded-full">
 
                 <FaCamera />
 
@@ -54,41 +68,69 @@ const Profile = () => {
 
             </div>
 
-            <h2 className="text-2xl font-bold mt-5">
-              Rahul Sharma
+            <h2 className="text-2xl font-bold mt-5 text-center">
+
+              {profile.name}
+
             </h2>
 
-            <p className="text-gray-500">
-              Software Engineer
+            <p className="text-gray-500 text-center">
+
+              {profile.designation}
+
             </p>
 
-            <button
-              className="mt-6 bg-violet-600 hover:bg-violet-700 text-white px-6 py-3 rounded-xl"
-            >
-              Edit Profile
-            </button>
+            {!isEditing ? (
+
+              <button
+                onClick={() => setIsEditing(true)}
+                className="mt-6 w-full sm:w-auto bg-violet-600 hover:bg-violet-700 transition text-white px-8 py-3 rounded-xl"
+              >
+
+                Edit Profile
+
+              </button>
+
+            ) : (
+
+              <button
+                onClick={() => setIsEditing(false)}
+                className="mt-6 w-full sm:w-auto bg-red-500 hover:bg-red-600 transition text-white px-8 py-3 rounded-xl"
+              >
+
+                Cancel Editing
+
+              </button>
+
+            )}
 
           </div>
 
-          {/* Right */}
-
           <div className="flex-1">
 
-            <h2 className="text-2xl font-semibold mb-6">
+            <h2 className="text-xl sm:text-2xl font-semibold mb-6">
               Personal Information
             </h2>
 
-            <div className="grid md:grid-cols-2 gap-6">
-
-              <div>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div>
 
                 <label className="text-gray-500 text-sm">
                   Full Name
                 </label>
 
-                <div className="border rounded-xl p-3 mt-2">
-                  Rahul Sharma
-                </div>
+                <input
+                  type="text"
+                  value={profile.name}
+                  readOnly={!isEditing}
+                  onChange={(e) =>
+                    setProfile({
+                      ...profile,
+                      name: e.target.value,
+                    })
+                  }
+                  className="w-full border rounded-xl p-3 mt-2 outline-none focus:ring-2 focus:ring-violet-500"
+                />
 
               </div>
 
@@ -98,9 +140,18 @@ const Profile = () => {
                   Employee ID
                 </label>
 
-                <div className="border rounded-xl p-3 mt-2">
-                  EMP-1025
-                </div>
+                <input
+                  type="text"
+                  value={profile.employeeId}
+                  readOnly={!isEditing}
+                  onChange={(e) =>
+                    setProfile({
+                      ...profile,
+                      employeeId: e.target.value,
+                    })
+                  }
+                  className="w-full border rounded-xl p-3 mt-2 outline-none focus:ring-2 focus:ring-violet-500"
+                />
 
               </div>
 
@@ -114,9 +165,18 @@ const Profile = () => {
 
                 </label>
 
-                <div className="border rounded-xl p-3 mt-2">
-                  rahul@gmail.com
-                </div>
+                <input
+                  type="email"
+                  value={profile.email}
+                  readOnly={!isEditing}
+                  onChange={(e) =>
+                    setProfile({
+                      ...profile,
+                      email: e.target.value,
+                    })
+                  }
+                  className="w-full border rounded-xl p-3 mt-2 outline-none focus:ring-2 focus:ring-violet-500"
+                />
 
               </div>
 
@@ -130,9 +190,18 @@ const Profile = () => {
 
                 </label>
 
-                <div className="border rounded-xl p-3 mt-2">
-                  +91 9876543210
-                </div>
+                <input
+                  type="text"
+                  value={profile.phone}
+                  readOnly={!isEditing}
+                  onChange={(e) =>
+                    setProfile({
+                      ...profile,
+                      phone: e.target.value,
+                    })
+                  }
+                  className="w-full border rounded-xl p-3 mt-2 outline-none focus:ring-2 focus:ring-violet-500"
+                />
 
               </div>
 
@@ -146,9 +215,18 @@ const Profile = () => {
 
                 </label>
 
-                <div className="border rounded-xl p-3 mt-2">
-                  Google India
-                </div>
+                <input
+                  type="text"
+                  value={profile.company}
+                  readOnly={!isEditing}
+                  onChange={(e) =>
+                    setProfile({
+                      ...profile,
+                      company: e.target.value,
+                    })
+                  }
+                  className="w-full border rounded-xl p-3 mt-2 outline-none focus:ring-2 focus:ring-violet-500"
+                />
 
               </div>
 
@@ -162,9 +240,18 @@ const Profile = () => {
 
                 </label>
 
-                <div className="border rounded-xl p-3 mt-2">
-                  Software Engineer
-                </div>
+                <input
+                  type="text"
+                  value={profile.designation}
+                  readOnly={!isEditing}
+                  onChange={(e) =>
+                    setProfile({
+                      ...profile,
+                      designation: e.target.value,
+                    })
+                  }
+                  className="w-full border rounded-xl p-3 mt-2 outline-none focus:ring-2 focus:ring-violet-500"
+                />
 
               </div>
 
@@ -178,35 +265,45 @@ const Profile = () => {
 
                 </label>
 
-                <div className="border rounded-xl p-3 mt-2">
-                  Bangalore, Karnataka, India
-                </div>
+                <input
+                  type="text"
+                  value={profile.address}
+                  readOnly={!isEditing}
+                  onChange={(e) =>
+                    setProfile({
+                      ...profile,
+                      address: e.target.value,
+                    })
+                  }
+                  className="w-full border rounded-xl p-3 mt-2 outline-none focus:ring-2 focus:ring-violet-500"
+                />
 
               </div>
 
             </div>
-                        {/* About */}
 
             <div className="mt-10">
 
-              <h2 className="text-2xl font-semibold mb-4">
+              <h2 className="text-xl sm:text-2xl font-semibold mb-4">
                 About Me
               </h2>
 
-              <div className="border rounded-xl p-5 text-gray-600 leading-7">
-                Passionate Software Engineer with experience in Web
-                Development, React, FastAPI and AI-based applications.
-                Interested in building scalable products and helping
-                students through ReferralX.
-              </div>
+              <textarea
+                rows="5"
+                value={profile.about}
+                readOnly={!isEditing}
+                onChange={(e) =>
+                  setProfile({
+                    ...profile,
+                    about: e.target.value,
+                  })
+                }
+                className="w-full border rounded-2xl p-5 outline-none focus:ring-2 focus:ring-violet-500"
+              />
 
-            </div>
+            </div>            <div className="mt-10">
 
-            {/* Skills */}
-
-            <div className="mt-10">
-
-              <h2 className="text-2xl font-semibold mb-4">
+              <h2 className="text-xl sm:text-2xl font-semibold mb-4">
                 Skills
               </h2>
 
@@ -225,9 +322,11 @@ const Profile = () => {
 
                   <span
                     key={index}
-                    className="bg-violet-100 text-violet-700 px-4 py-2 rounded-full"
+                    className="bg-violet-100 text-violet-700 px-4 py-2 rounded-full text-sm font-medium"
                   >
+
                     {skill}
+
                   </span>
 
                 ))}
@@ -236,17 +335,15 @@ const Profile = () => {
 
             </div>
 
-            {/* Experience */}
-
             <div className="mt-10">
 
-              <h2 className="text-2xl font-semibold mb-4">
+              <h2 className="text-xl sm:text-2xl font-semibold mb-4">
                 Experience
               </h2>
 
-              <div className="border rounded-xl p-5">
+              <div className="border rounded-2xl p-5">
 
-                <h3 className="font-bold">
+                <h3 className="font-bold text-lg">
                   Software Engineer
                 </h3>
 
@@ -258,7 +355,7 @@ const Profile = () => {
                   Jan 2024 - Present
                 </p>
 
-                <p className="mt-4 text-gray-600">
+                <p className="mt-4 text-gray-600 leading-7">
                   Working on scalable web applications, backend APIs,
                   referral management systems and cloud deployment.
                 </p>
@@ -267,41 +364,91 @@ const Profile = () => {
 
             </div>
 
-            {/* Social Links */}
-
             <div className="mt-10">
 
-              <h2 className="text-2xl font-semibold mb-4">
+              <h2 className="text-xl sm:text-2xl font-semibold mb-4">
                 Social Links
               </h2>
 
-              <div className="grid md:grid-cols-2 gap-5">
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
 
-                <input
-                  type="text"
-                  value="https://github.com/username"
-                  readOnly
-                  className="border rounded-xl p-3"
-                />
+                <div>
 
-                <input
-                  type="text"
-                  value="https://linkedin.com/in/username"
-                  readOnly
-                  className="border rounded-xl p-3"
-                />
+                  <label className="text-gray-500 text-sm mb-2 block">
+                    GitHub
+                  </label>
+
+                  <input
+                    type="text"
+                    value={profile.github}
+                    readOnly={!isEditing}
+                    onChange={(e) =>
+                      setProfile({
+                        ...profile,
+                        github: e.target.value,
+                      })
+                    }
+                    className="w-full border rounded-xl p-3 outline-none focus:ring-2 focus:ring-violet-500"
+                  />
+
+                </div>
+
+                <div>
+
+                  <label className="text-gray-500 text-sm mb-2 block">
+                    LinkedIn
+                  </label>
+
+                  <input
+                    type="text"
+                    value={profile.linkedin}
+                    readOnly={!isEditing}
+                    onChange={(e) =>
+                      setProfile({
+                        ...profile,
+                        linkedin: e.target.value,
+                      })
+                    }
+                    className="w-full border rounded-xl p-3 outline-none focus:ring-2 focus:ring-violet-500"
+                  />
+
+                </div>
 
               </div>
 
             </div>
 
-          </div>
+            {isEditing && (
+
+              <div className="mt-10 flex flex-col sm:flex-row gap-4">
+
+                <button
+                  className="w-full sm:w-auto bg-violet-600 hover:bg-violet-700 text-white px-8 py-3 rounded-xl transition"
+                >
+
+                  Save Changes
+
+                </button>
+
+                <button
+                  onClick={() => setIsEditing(false)}
+                  className="w-full sm:w-auto border border-gray-300 hover:bg-gray-100 px-8 py-3 rounded-xl transition"
+                >
+
+                  Cancel
+
+                </button>
+
+              </div>
+
+            )}          </div>
 
         </div>
 
       </div>
 
     </div>
+
   );
 };
 
