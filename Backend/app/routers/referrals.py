@@ -1,5 +1,3 @@
-# app/routers/referrals.py
-
 from typing import List
 from fastapi import APIRouter, Depends, HTTPException
 from sqlalchemy.orm import Session
@@ -55,7 +53,9 @@ def create_referral(
 # Anyone browses active referral posts
 
 @router.get("/", response_model=List[ReferralPostResponse])
-def get_all_referrals(db: Session = Depends(get_db)):
+def get_all_referrals(
+    db: Session = Depends(get_db)
+):
     return db.query(ReferralPost).all()
 
 
@@ -158,6 +158,65 @@ def employee_dashboard(
         "referred": referred,
         "recent_applications": recent
     }
+# Employee issued referrals
+
+@router.get("/issued")
+def get_issued_referrals(
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(RoleEnum.employee))
+):
+    applications = (
+        db.query(Application)
+        .join(
+            ReferralPost,
+            Application.post_id == ReferralPost.id
+        )
+        .join(
+            User,
+            Application.student_id == User.id
+        )
+        .filter(
+            ReferralPost.employee_id == current_user.id,
+            Application.status == StatusEnum.referred
+        )
+        .all()
+    )
+
+    referrals = []
+
+    accepted = 0
+    pending = 0
+
+    for app in applications:
+
+        post = db.query(ReferralPost).filter(
+            ReferralPost.id == app.post_id
+        ).first()
+
+        student = db.query(User).filter(
+            User.id == app.student_id
+        ).first()
+
+        if app.status == StatusEnum.referred:
+            accepted += 1
+        else:
+            pending += 1
+
+        referrals.append({
+            "application_id": app.id,
+            "student_name": student.name if student else "Unknown",
+            "company_name": post.company_name if post else "",
+            "job_role": post.job_role if post else "",
+            "referred_at": app.created_at,
+            "status": app.status.value
+        })
+
+    return {
+        "total_referrals": len(referrals),
+        "accepted": accepted,
+        "pending": pending,
+        "referrals": referrals
+    }
 # Get single referral post
 
 @router.get("/{post_id}", response_model=ReferralPostResponse)
@@ -165,9 +224,11 @@ def get_referral(
     post_id: int,
     db: Session = Depends(get_db)
 ):
-    post = db.query(ReferralPost).filter(
-        ReferralPost.id == post_id
-    ).first()
+    post = (
+        db.query(ReferralPost)
+        .filter(ReferralPost.id == post_id)
+        .first()
+    )
 
     if not post:
         raise HTTPException(
@@ -178,7 +239,7 @@ def get_referral(
     return post
 
 
-# Employee closes a post
+# Employee closes a referral post
 
 @router.patch("/{post_id}/close")
 def close_referral_post(
@@ -186,10 +247,14 @@ def close_referral_post(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role(RoleEnum.employee))
 ):
-    post = db.query(ReferralPost).filter(
-        ReferralPost.id == post_id,
-        ReferralPost.employee_id == current_user.id
-    ).first()
+    post = (
+        db.query(ReferralPost)
+        .filter(
+            ReferralPost.id == post_id,
+            ReferralPost.employee_id == current_user.id
+        )
+        .first()
+    )
 
     if not post:
         raise HTTPException(
@@ -205,13 +270,13 @@ def close_referral_post(
 
     post.is_active = False
     db.commit()
+    db.refresh(post)
 
     return {
-        "message": "Referral post closed successfully!"
+        "message": "Referral post closed successfully!",
+        "is_active": post.is_active
     }
-
-
-# Employee reopens a post
+# Employee reopens a referral post
 
 @router.patch("/{post_id}/reopen")
 def reopen_referral_post(
@@ -219,10 +284,14 @@ def reopen_referral_post(
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role(RoleEnum.employee))
 ):
-    post = db.query(ReferralPost).filter(
-        ReferralPost.id == post_id,
-        ReferralPost.employee_id == current_user.id
-    ).first()
+    post = (
+        db.query(ReferralPost)
+        .filter(
+            ReferralPost.id == post_id,
+            ReferralPost.employee_id == current_user.id
+        )
+        .first()
+    )
 
     if not post:
         raise HTTPException(
@@ -238,22 +307,28 @@ def reopen_referral_post(
 
     post.is_active = True
     db.commit()
+    db.refresh(post)
 
     return {
-        "message": "Referral post reopened successfully!"
+        "message": "Referral post reopened successfully!",
+        "is_active": post.is_active
     }
-    # Employee views ranked candidates
+# Employee reopens a referral post
 
-@router.get("/{post_id}/rankings")
-def get_rankings(
+@router.patch("/{post_id}/reopen")
+def reopen_referral_post(
     post_id: int,
     db: Session = Depends(get_db),
     current_user: User = Depends(require_role(RoleEnum.employee))
 ):
-    post = db.query(ReferralPost).filter(
-        ReferralPost.id == post_id,
-        ReferralPost.employee_id == current_user.id
-    ).first()
+    post = (
+        db.query(ReferralPost)
+        .filter(
+            ReferralPost.id == post_id,
+            ReferralPost.employee_id == current_user.id
+        )
+        .first()
+    )
 
     if not post:
         raise HTTPException(
@@ -261,10 +336,51 @@ def get_rankings(
             detail="Post not found"
         )
 
-    applications = db.query(Application).filter(
-        Application.post_id == post_id,
-        Application.status == StatusEnum.under_review
-    ).all()
+    if post.is_active:
+        raise HTTPException(
+            status_code=400,
+            detail="Post is already active"
+        )
+
+    post.is_active = True
+    db.commit()
+    db.refresh(post)
+
+    return {
+        "message": "Referral post reopened successfully!",
+        "is_active": post.is_active
+    }
+# Employee views ranked candidates
+
+@router.get("/{post_id}/rankings")
+def get_rankings(
+    post_id: int,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(require_role(RoleEnum.employee))
+):
+    post = (
+        db.query(ReferralPost)
+        .filter(
+            ReferralPost.id == post_id,
+            ReferralPost.employee_id == current_user.id
+        )
+        .first()
+    )
+
+    if not post:
+        raise HTTPException(
+            status_code=404,
+            detail="Post not found"
+        )
+
+    applications = (
+        db.query(Application)
+        .filter(
+            Application.post_id == post_id,
+            Application.status == StatusEnum.under_review
+        )
+        .all()
+    )
 
     if not applications:
         return {
@@ -275,24 +391,28 @@ def get_rankings(
 
     for app in applications:
 
-        result = db.query(Result).filter(
-            Result.application_id == app.id
-        ).first()
+        result = (
+            db.query(Result)
+            .filter(
+                Result.application_id == app.id
+            )
+            .first()
+        )
 
-        if result:
-            ranked.append({
-                "application_id": app.id,
-                "student_id": app.student_id,
-                "resume_score": result.resume_score,
-                "status": app.status,
-            })
+        ranked.append({
+            "application_id": app.id,
+            "student_id": app.student_id,
+            "student_name": app.student.name if app.student else "",
+            "resume_score": result.resume_score if result else 0,
+            "status": app.status.value,
+        })
 
     ranked.sort(
         key=lambda x: x["resume_score"],
         reverse=True
     )
 
-    for i, candidate in enumerate(ranked):
-        candidate["rank"] = i + 1
+    for index, candidate in enumerate(ranked, start=1):
+        candidate["rank"] = index
 
     return ranked

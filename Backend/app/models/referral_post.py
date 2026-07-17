@@ -1,5 +1,7 @@
-from sqlalchemy import Boolean, Column, Integer, String, ForeignKey, ARRAY
+from sqlalchemy import Boolean, Column, Integer, String, ForeignKey
+from sqlalchemy.orm import relationship
 from app.database import Base
+
 
 class ReferralPost(Base):
     __tablename__ = "referral_posts"
@@ -12,3 +14,15 @@ class ReferralPost(Base):
     eligibility = Column(String, nullable=True)
     slots = Column(Integer, default=1)
     is_active = Column(Boolean, default=True)
+
+    # Relationships
+    employee = relationship(
+        "User",
+        back_populates="referral_posts"
+    )
+
+    applications = relationship(
+        "Application",
+        back_populates="post",
+        cascade="all, delete-orphan"
+    )

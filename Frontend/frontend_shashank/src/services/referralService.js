@@ -1,5 +1,9 @@
 import api from "./api";
 
+export const getIssuedReferrals = async () => {
+  const response = await api.get("/referrals/issued");
+  return response.data;
+};
 export const getAllReferrals = async () => {
   const response = await api.get("/referrals/");
   return response.data;

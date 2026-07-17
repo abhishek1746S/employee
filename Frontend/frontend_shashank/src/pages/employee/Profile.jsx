@@ -301,18 +301,8 @@ await loadProfile();
                 <input
   type="email"
   value={profile.email}
-  readOnly={!isEditing}
-  onChange={(e) =>
-    setProfile({
-      ...profile,
-      email: e.target.value,
-    })
-  }
-  className={`w-full border rounded-xl p-3 mt-2 ${
-    isEditing
-      ? "outline-none focus:ring-2 focus:ring-violet-500"
-      : "bg-gray-100"
-  }`}
+  readOnly
+  className="w-full border rounded-xl p-3 mt-2 bg-gray-100 text-gray-500 cursor-not-allowed"
 />
 
               </div>

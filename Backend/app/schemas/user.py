@@ -1,12 +1,17 @@
-# app/schemas/user.py
 from pydantic import BaseModel, EmailStr
 from typing import Optional
 from enum import Enum
+
 
 class RoleEnum(str, Enum):
     student = "student"
     employee = "employee"
     admin = "admin"
+
+
+# ==========================
+# Auth
+# ==========================
 
 class UserRegister(BaseModel):
     name: str
@@ -16,9 +21,11 @@ class UserRegister(BaseModel):
     company_email: Optional[str] = None
     company_name: Optional[str] = None
 
+
 class UserLogin(BaseModel):
     email: EmailStr
     password: str
+
 
 class UserResponse(BaseModel):
     id: int
@@ -30,85 +37,138 @@ class UserResponse(BaseModel):
     class Config:
         from_attributes = True
 
+
 class TokenResponse(BaseModel):
     access_token: str
     token_type: str = "bearer"
     user: UserResponse
 
-# update own profile
+
+# ==========================
+# Update Profile
+# ==========================
+
 class ProfileUpdate(BaseModel):
+
+    # Common
     name: Optional[str] = None
-
     email: Optional[EmailStr] = None
-
-    company_name: Optional[str] = None
-    company_email: Optional[str] = None
-
     bio: Optional[str] = None
-
-    skills: Optional[str] = None
-
     linkedin: Optional[str] = None
 
+    # Student
+    skills: Optional[str] = None
     github: Optional[str] = None
 
-# what student sees of their own profile
+    # Employee
+    company_name: Optional[str] = None
+    company_email: Optional[str] = None
+    phone: Optional[str] = None
+    designation: Optional[str] = None
+    address: Optional[str] = None
+
+
+# ==========================
+# Change Password
+# ==========================
+
+class ChangePasswordRequest(BaseModel):
+    current_password: str
+    new_password: str
+    confirm_password: str
+
+
+# ==========================
+# Student Own Profile
+# ==========================
+
 class MyStudentProfile(BaseModel):
     id: int
     name: str
     email: str
     role: str
+
     bio: Optional[str]
     skills: Optional[str]
+
     linkedin: Optional[str]
     github: Optional[str]
+
     profile_pic: Optional[str]
     profile_resume: Optional[str]
 
     class Config:
         from_attributes = True
 
-# what employee sees of student profile
+
+# ==========================
+# Student Public Profile
+# ==========================
+
 class StudentPublicProfile(BaseModel):
     id: int
     name: str
     role: str
+
     bio: Optional[str]
     skills: Optional[str]
+
     linkedin: Optional[str]
     github: Optional[str]
+
     profile_pic: Optional[str]
     profile_resume: Optional[str]
 
     class Config:
         from_attributes = True
 
-# what student sees of employee profile
+
+# ==========================
+# Employee Public Profile
+# ==========================
+
 class EmployeePublicProfile(BaseModel):
     id: int
     name: str
     role: str
+
     company_name: Optional[str]
+    designation: Optional[str]
+
     bio: Optional[str]
     linkedin: Optional[str]
+
     profile_pic: Optional[str]
+
     is_verified: bool
     total_posts: int
 
     class Config:
         from_attributes = True
 
-# what employee sees of their own profile
+
+# ==========================
+# Employee Own Profile
+# ==========================
+
 class MyEmployeeProfile(BaseModel):
     id: int
     name: str
     email: str
     role: str
+
     company_name: Optional[str]
     company_email: Optional[str]
+
+    phone: Optional[str]
+    designation: Optional[str]
+    address: Optional[str]
+
     bio: Optional[str]
     linkedin: Optional[str]
+
     profile_pic: Optional[str]
+
     is_verified: bool
     total_posts: int
 

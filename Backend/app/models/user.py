@@ -1,11 +1,14 @@
-from sqlalchemy import Column, Integer, String, Boolean, Enum ,Text
+from sqlalchemy import Column, Integer, String, Boolean, Enum, Text
+from sqlalchemy.orm import relationship
 from app.database import Base
 import enum
+
 
 class RoleEnum(str, enum.Enum):
     student = "student"
     employee = "employee"
     admin = "admin"
+
 
 class User(Base):
     __tablename__ = "users"
@@ -20,7 +23,7 @@ class User(Base):
     company_email = Column(String, nullable=True)
     company_name = Column(String, nullable=True)
 
-    # profile fields
+    # Profile fields
     bio = Column(Text, nullable=True)
     skills = Column(String, nullable=True)
     profile_pic = Column(String, nullable=True)
@@ -31,3 +34,16 @@ class User(Base):
     phone = Column(String, nullable=True)
     designation = Column(String, nullable=True)
     address = Column(String, nullable=True)
+
+    # Relationships
+    applications = relationship(
+        "Application",
+        back_populates="student",
+        cascade="all, delete-orphan"
+    )
+
+    referral_posts = relationship(
+        "ReferralPost",
+        back_populates="employee",
+        cascade="all, delete-orphan"
+    )

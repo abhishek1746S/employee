@@ -1,20 +1,24 @@
 from fastapi import APIRouter, Depends, HTTPException, UploadFile, File
 from sqlalchemy.orm import Session
 
-from app.database import get_db
-from app.models.user import User, RoleEnum
-from app.models.referral_post import ReferralPost
-from app.schemas.user import ProfileUpdate
-from app.core.dependencies import get_current_user
-
 import cloudinary
 import cloudinary.uploader
 
+from app.database import get_db
 from app.core.config import settings
+from app.core.dependencies import get_current_user
+from app.core.security import verify_password, get_password_hash
 
+from app.models.user import User, RoleEnum
+from app.models.referral_post import ReferralPost
+
+from app.schemas.user import (
+    ProfileUpdate,
+    ChangePasswordRequest,
+)
 
 # ==========================================
-# Cloudinary Config
+# Cloudinary Configuration
 # ==========================================
 
 cloudinary.config(
@@ -22,7 +26,6 @@ cloudinary.config(
     api_key=settings.CLOUDINARY_API_KEY,
     api_secret=settings.CLOUDINARY_API_SECRET,
 )
-
 
 # ==========================================
 # Router
@@ -33,9 +36,25 @@ router = APIRouter(
     tags=["Profile"],
 )
 
-
 # ==========================================
-# View Own Profile
+# Helper Function
+# Count Employee Referral Posts
+# ==========================================
+
+def get_total_posts(
+    db: Session,
+    employee_id: int,
+) -> int:
+
+    return (
+        db.query(ReferralPost)
+        .filter(
+            ReferralPost.employee_id == employee_id
+        )
+        .count()
+    )
+# ==========================================
+# Get My Profile
 # ==========================================
 
 @router.get("/me")
@@ -44,8 +63,10 @@ def get_my_profile(
     db: Session = Depends(get_db),
 ):
     return build_own_profile(current_user, db)
+
+
 # ==========================================
-# Update Own Profile
+# Update My Profile
 # ==========================================
 
 @router.put("/me")
@@ -55,20 +76,16 @@ def update_my_profile(
     current_user: User = Depends(get_current_user),
 ):
 
-    # ----------------------------------
-    # Common Fields
-    # ----------------------------------
-
-    if data.name is not None:
-        current_user.name = data.name
-
+    # -----------------------------
+    # Check Duplicate Email
+    # -----------------------------
     if data.email is not None:
 
         existing_user = (
             db.query(User)
             .filter(
                 User.email == data.email,
-                User.id != current_user.id
+                User.id != current_user.id,
             )
             .first()
         )
@@ -76,10 +93,16 @@ def update_my_profile(
         if existing_user:
             raise HTTPException(
                 status_code=400,
-                detail="Email already exists"
+                detail="Email already exists",
             )
 
         current_user.email = data.email
+
+    # -----------------------------
+    # Common Fields
+    # -----------------------------
+    if data.name is not None:
+        current_user.name = data.name
 
     if data.bio is not None:
         current_user.bio = data.bio
@@ -87,10 +110,9 @@ def update_my_profile(
     if data.linkedin is not None:
         current_user.linkedin = data.linkedin
 
-    # ----------------------------------
+    # -----------------------------
     # Employee Fields
-    # ----------------------------------
-
+    # -----------------------------
     if current_user.role == RoleEnum.employee:
 
         if data.company_name is not None:
@@ -108,10 +130,9 @@ def update_my_profile(
         if data.address is not None:
             current_user.address = data.address
 
-    # ----------------------------------
+    # -----------------------------
     # Student Fields
-    # ----------------------------------
-
+    # -----------------------------
     elif current_user.role == RoleEnum.student:
 
         if data.skills is not None:
@@ -124,91 +145,111 @@ def update_my_profile(
     db.refresh(current_user)
 
     return {
-        "message": "Profile updated successfully!",
+        "message": "Profile updated successfully",
         "profile": build_own_profile(current_user, db),
     }
 # ==========================================
-# Update Own Profile
+# Upload Profile Picture
 # ==========================================
 
-@router.put("/me")
-def update_my_profile(
-    data: ProfileUpdate,
+@router.post("/upload-profile-picture")
+async def upload_profile_picture(
+    file: UploadFile = File(...),
     db: Session = Depends(get_db),
     current_user: User = Depends(get_current_user),
 ):
 
-    # ----------------------------------
-    # Common Fields
-    # ----------------------------------
-
-    if data.name is not None:
-        current_user.name = data.name
-
-    if data.email is not None:
-
-        existing_user = (
-            db.query(User)
-            .filter(
-                User.email == data.email,
-                User.id != current_user.id
-            )
-            .first()
+    # -----------------------------
+    # Validate Image
+    # -----------------------------
+    if not file.content_type.startswith("image/"):
+        raise HTTPException(
+            status_code=400,
+            detail="Only image files are allowed",
         )
 
-        if existing_user:
-            raise HTTPException(
-                status_code=400,
-                detail="Email already exists"
-            )
+    try:
 
-        current_user.email = data.email
+        file_bytes = await file.read()
 
-    if data.bio is not None:
-        current_user.bio = data.bio
+        upload_result = cloudinary.uploader.upload(
+            file_bytes,
+            folder="referralx/profile_pictures",
+            public_id=f"user_{current_user.id}",
+            overwrite=True,
+            resource_type="image",
+        )
 
-    if data.linkedin is not None:
-        current_user.linkedin = data.linkedin
+        current_user.profile_pic = upload_result["secure_url"]
 
-    # ----------------------------------
-    # Employee Fields
-    # ----------------------------------
+        db.commit()
+        db.refresh(current_user)
 
-    if current_user.role == RoleEnum.employee:
+        return {
+            "message": "Profile picture uploaded successfully",
+            "profile_pic": current_user.profile_pic,
+        }
 
-        if data.company_name is not None:
-            current_user.company_name = data.company_name
+    except Exception as e:
+        raise HTTPException(
+            status_code=500,
+            detail=f"Upload failed: {str(e)}",
+        )
+    # ==========================================
+# Change Password
+# ==========================================
 
-        if data.company_email is not None:
-            current_user.company_email = data.company_email
+@router.put("/change-password")
+def change_password(
+    data: ChangePasswordRequest,
+    db: Session = Depends(get_db),
+    current_user: User = Depends(get_current_user),
+):
 
-        if data.phone is not None:
-            current_user.phone = data.phone
+    # -----------------------------
+    # Verify Current Password
+    # -----------------------------
+    if not verify_password(
+        data.current_password,
+        current_user.hashed_password,
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="Current password is incorrect",
+        )
 
-        if data.designation is not None:
-            current_user.designation = data.designation
+    # -----------------------------
+    # Check New Password
+    # -----------------------------
+    if data.new_password != data.confirm_password:
+        raise HTTPException(
+            status_code=400,
+            detail="New password and confirm password do not match",
+        )
 
-        if data.address is not None:
-            current_user.address = data.address
+    # -----------------------------
+    # Prevent Same Password
+    # -----------------------------
+    if verify_password(
+        data.new_password,
+        current_user.hashed_password,
+    ):
+        raise HTTPException(
+            status_code=400,
+            detail="New password must be different from current password",
+        )
 
-    # ----------------------------------
-    # Student Fields
-    # ----------------------------------
-
-    elif current_user.role == RoleEnum.student:
-
-        if data.skills is not None:
-            current_user.skills = data.skills
-
-        if data.github is not None:
-            current_user.github = data.github
+    # -----------------------------
+    # Update Password
+    # -----------------------------
+    current_user.hashed_password = get_password_hash(
+        data.new_password
+    )
 
     db.commit()
-    db.refresh(current_user)
 
     return {
-        "message": "Profile updated successfully!",
-        "profile": build_own_profile(current_user, db),
+        "message": "Password changed successfully"
     }
 # ==========================================
 # View Any User Profile
@@ -221,9 +262,15 @@ def get_profile(
     current_user: User = Depends(get_current_user),
 ):
 
+    # -----------------------------
+    # Own Profile
+    # -----------------------------
     if current_user.id == user_id:
         return build_own_profile(current_user, db)
 
+    # -----------------------------
+    # Find User
+    # -----------------------------
     target = (
         db.query(User)
         .filter(User.id == user_id)
@@ -236,7 +283,9 @@ def get_profile(
             detail="User not found",
         )
 
-    # Student -> Student ❌
+    # -----------------------------
+    # Student -> Student
+    # -----------------------------
     if (
         current_user.role == RoleEnum.student
         and target.role == RoleEnum.student
@@ -246,7 +295,9 @@ def get_profile(
             detail="Students cannot view other student profiles",
         )
 
-    # Employee -> Employee ❌
+    # -----------------------------
+    # Employee -> Employee
+    # -----------------------------
     if (
         current_user.role == RoleEnum.employee
         and target.role == RoleEnum.employee
@@ -256,19 +307,13 @@ def get_profile(
             detail="Employees cannot view other employee profiles",
         )
 
+    # -----------------------------
     # Student -> Employee
+    # -----------------------------
     if (
         current_user.role == RoleEnum.student
         and target.role == RoleEnum.employee
     ):
-
-        total_posts = (
-            db.query(ReferralPost)
-            .filter(
-                ReferralPost.employee_id == target.id
-            )
-            .count()
-        )
 
         return {
             "id": target.id,
@@ -280,10 +325,15 @@ def get_profile(
             "linkedin": target.linkedin,
             "profile_pic": target.profile_pic,
             "is_verified": target.is_verified,
-            "total_posts": total_posts,
+            "total_posts": get_total_posts(
+                db,
+                target.id,
+            ),
         }
 
+    # -----------------------------
     # Employee -> Student
+    # -----------------------------
     if (
         current_user.role == RoleEnum.employee
         and target.role == RoleEnum.student
@@ -301,15 +351,22 @@ def get_profile(
             "profile_resume": target.profile_resume,
         }
 
+    # -----------------------------
+    # Fallback
+    # -----------------------------
     return build_own_profile(target, db)
-
-
 # ==========================================
-# Helper - Build Profile Based On Role
+# Build Own Profile
 # ==========================================
 
-def build_own_profile(user: User, db: Session) -> dict:
+def build_own_profile(
+    user: User,
+    db: Session,
+) -> dict:
 
+    # -----------------------------
+    # Student Profile
+    # -----------------------------
     if user.role == RoleEnum.student:
 
         return {
@@ -328,21 +385,15 @@ def build_own_profile(user: User, db: Session) -> dict:
             "profile_resume": user.profile_resume,
         }
 
+    # -----------------------------
+    # Employee Profile
+    # -----------------------------
     elif user.role == RoleEnum.employee:
-
-        total_posts = (
-            db.query(ReferralPost)
-            .filter(
-                ReferralPost.employee_id == user.id
-            )
-            .count()
-        )
 
         return {
             "id": user.id,
             "name": user.name,
             "email": user.email,
-
             "role": user.role,
 
             "company_name": user.company_name,
@@ -358,9 +409,15 @@ def build_own_profile(user: User, db: Session) -> dict:
             "profile_pic": user.profile_pic,
 
             "is_verified": user.is_verified,
-            "total_posts": total_posts,
+            "total_posts": get_total_posts(
+                db,
+                user.id,
+            ),
         }
 
+    # -----------------------------
+    # Admin / Fallback
+    # -----------------------------
     return {
         "id": user.id,
         "name": user.name,

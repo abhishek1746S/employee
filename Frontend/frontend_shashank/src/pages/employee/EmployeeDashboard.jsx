@@ -10,9 +10,9 @@ const EmployeeDashboard = () => {
     { name: "Dashboard", icon: "home", path: "/employee-dashboard" },
     { name: "My Referrals", icon: "network_node", path: "/employee-dashboard/MyReferral" },
     { name: "Shortlist Candidate", icon: "person_add", path: "/employee-dashboard/ShortList" },
-    { name: "Interviews", icon: "frame_person_mic", path: "/employee-dashboard/Interview" },
+    // { name: "Interviews", icon: "frame_person_mic", path: "/employee-dashboard/Interview" },
     { name: "Referrals Issued", icon: "assignment", path: "/employee-dashboard/ReferralIssued" },
-    { name: "Messages", icon: "mail", path: "/employee-dashboard/Messages" },
+    // { name: "Messages", icon: "mail", path: "/employee-dashboard/Messages" },
     { name: "Profile", icon: "manage_accounts", path: "/employee-dashboard/Profile" },
     { name: "Notification", icon: "notifications", path: "/employee-dashboard/Notification" },
     { name: "Settings", icon: "settings", path: "/employee-dashboard/settings" },
@@ -108,20 +108,25 @@ const EmployeeDashboard = () => {
         </div>
 
         <div
-          onClick={() => {
-            navigate("/");
-            setOpen(false);
-          }}
-          className="mx-4 mb-6 flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-500 cursor-pointer"
-        >
+  onClick={() => {
+    // Remove saved login data
+    localStorage.removeItem("token");
+    localStorage.removeItem("user");
+    sessionStorage.clear();
 
-          <span className="material-symbols-outlined">
-            logout
-          </span>
+    setOpen(false);
 
-          Logout
+    // Redirect to login page
+    navigate("/login", { replace: true });
+  }}
+  className="mx-4 mb-6 flex items-center gap-4 px-4 py-3 rounded-xl hover:bg-red-500 transition cursor-pointer"
+>
+  <span className="material-symbols-outlined">
+    logout
+  </span>
 
-        </div>
+  Logout
+</div>
 
       </aside>
 
